@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Golden Circle Game</title>
+    <style>
+        /* অবিসিডিয়ান ডার্ক ব্যাকগ্রাউন্ড */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+        }
+
+        canvas {
+            border: 2px solid #ffd700; /* গোল্ডেন বর্ডার */
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); /* হালকা গোল্ডেন গ্লো */
+            background: radial-gradient(circle, #2a2a2a 0%, #1a1a1a 100%);
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            pointer-events: none; /* ক্লিকের বাধা দেবে না */
+        }
+
+        .score-board {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700; /* গোল্ডেন টেক্সট */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #aaaaaa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui">
+            <div class="score-board">Score: <span id="score">0</span></div>
+        </div>
+        <div id="instructions">মাউস দিয়ে গোল্ডেন বলটি ড্র্যাগ করে বৃত্তের বাইরে নিন এবং মাঝখানের জোন দিয়ে পাস দিন।</div>
+    </div>
+
+    <script>
+        // --- কনফিগারেশন এবং সেটআপ ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        // ক্যানভাস সাইজ (রেসপনসিভ করার জন্য)
+        canvas.width = Math.min(window.innerWidth * 0.9, 800);
+        canvas.height = Math.min(window.innerHeight * 0.8, 600);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        // গেমের স্টেট
+        let score = 0;
+        let isDragging = false;
+        let dragStartX, dragStartY;
+
+        // রঙের প্যালেট (গোল্ডেন এবং ডার্ক গ্রে)
+        const COLORS = {
+            bg: '#1a1a1a',
+            gold: '#ffd700',
+            darkGold: '#b8860b',
+            player: '#e0e0e0', // সিলভার বা হোয়াইট
+            ball: '#ffd700',
+            line: 'rgba(255, 215, 0, 0.3)' // হালকা গোল্ডেন লাইন
+        };
+
+        // --- অবজেক্ট ডেফিনিশন ---
+
+        // ১. মেইন সার্কেল (The Golden Circle)
+        const goldenCircle = {
+            x: centerX,
+            y: centerY,
+            radius: Math.min(canvas.width, canvas.height) * 0.35,
+            draw: function() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = COLORS.line;
+                ctx.lineWidth = 3;
+                ctx.setLineDash([10, 5]); // ড্যাশ লাইন
+                ctx.stroke();
+                ctx.setLineDash([]); // লাইন আবার সোজা করার জন্য
+                ctx.closePath();
+            }
+        };
+
+        // ২. মাঝখানের ভল্ট (The Vault - বোনাস জোন)
+        const vault = {
+            x: centerX,
+            y: centerY,
+            radius: goldenCircle.radius * 0.25,
+            draw: function() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.1)'; // খুব হালকা গোল্ডেন ফিল
+                ctx.fill();
+                ctx.strokeStyle = COLORS.gold;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.closePath();
+            }
+        };
+
+        // ৩. ফুটবল
+        const ball = {
+            x: centerX + goldenCircle.radius + 30, // বৃত্তের একটু বাইরে শুরু হবে
+            y: centerY,
+            radius: 12,
+            baseRadius: 12,
+            isMoving: false,
+            vx: 0,
+            vy: 0,
+            friction: 0.98, // গতি কমার হার
+            elasticity: 0.7, // বাউন্স করার হার
+
+            draw: function() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // বলের শ্যাডো (Depth এর জন্য)
+                ctx.beginPath();
+                ctx.arc(2, 2, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fill();
+                ctx.closePath();
+
+                // মেইন গোল্ডেন বল
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                
+                // গ্রেডিয়েন্ট ফিল (৩ডি লুকের জন্য)
+                let gradient = ctx.createRadialGradient(-3, -3, 2, 0, 0, this.radius);
+                gradient.addColorStop(0, '#fff3b0'); // লাইট গোল্ড
+                gradient.addColorStop(1, COLORS.gold); // মেইন গোল্ড
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                ctx.strokeStyle = COLORS.darkGold;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.closePath();
+                ctx.restore();
+            },
+
+            update: function() {
+                if (!this.isMoving) return;
+
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+
+                // ক্যানভাস বর্ডারে বাউন্স
+                if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+                    this.vx *= -this.elasticity;
+                    this.x = this.x + this.radius > canvas.width ? canvas.width - this.radius : this.radius;
+                }
+                if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+                    this.vy *= -this.elasticity;
+                    this.y = this.y + this.radius > canvas.height ? canvas.height - this.radius : this.radius;
+                }
+
+                // গতি খুব কমে গেলে থামিয়ে দাও
+                if (Math.abs(this.vx) < 0.1 && Math.abs(this.vy) < 0.1) {
+                    this.isMoving = false;
+                    this.vx = 0;
+                    this.vy = 0;
+                    checkScoring(); // বল থামলে স্কোর চেক করো
+                }
+            }
+        };
+
+        // --- মেইন গেম লুপ (অ্যানিমেশন) ---
+        function animate() {
+            // ১. ক্যানভাস ক্লিয়ার করা
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // ২. স্ট্যাটিক এলিমেন্ট আঁকা
+            goldenCircle.draw();
+            vault.draw();
+
+            // ৩. বল আপডেট এবং আঁকা
+            ball.update();
+            ball.draw();
+
+            // ৪. ড্র্যাগ করার সময় লাইন দেখানো (Aiming line)
+            if (isDragging) {
+                drawAimLine();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- ইন্টারঅ্যাকশন এবং ফিজিক্স মেকানিক্স ---
+
+        function drawAimLine() {
+            ctx.beginPath();
+            ctx.moveTo(ball.x, ball.y);
+            // বলের উল্টো দিকে লাইন (Angry Birds style launch)
+            const aimX = ball.x - (dragStartX - ball.x);
+            const aimY = ball.y - (dragStartY - ball.y);
+            ctx.lineTo(dragStartX, dragStartY);
+            ctx.strokeStyle = COLORS.gold;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.closePath();
+        }
+
+        function checkScoring() {
+            // চেক করো বলটি ভল্টের ভেতরে আছে কিনা (Distance formula)
+            const dx = ball.x - vault.x;
+            const dy = ball.y - vault.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < vault.radius) {
+                score += 10; // বোনাস পয়েন্ট
+                scoreElement.innerText = score;
+                // একটি পালস ইফেক্ট বা ভিশ্যুয়াল ফিডব্যাক
+                vaultPulse();
+            } else if (distance < goldenCircle.radius) {
+                score += 1; // সাধারণ পয়েন্ট
+                scoreElement.innerText = score;
+            }
+        }
+
+        // ভিশ্যুয়াল ফিডব্যাক: ভল্ট স্কোর করলে জ্বলে উঠবে
+        function vaultPulse() {
+            let originalColor = 'rgba(255, 215, 0, 0.1)';
+            let flashColor = 'rgba(255, 215, 0, 0.5)';
+            vault.draw = function() { // টেম্পোরারি ড্র ফাংশন ওভাররাইড
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = flashColor;
+                ctx.fill();
+                ctx.strokeStyle = COLORS.gold;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            };
+            setTimeout(() => {
+                vault.draw = function() { // আবার আগের জায়গায় ফিরিয়ে আনা
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = originalColor;
+                    ctx.fill();
+                    ctx.strokeStyle = COLORS.gold;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    ctx.closePath();
+                };
+            }, 200);
+        }
+
+        // --- মাউস ইভেন্ট লিসেনার ---
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (ball.isMoving) return; // বল চলন্ত অবস্থায় ড্র্যাগ করা যাবে না
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // চেক করো মাউস বলের ওপর আছে কিনা
+            const dx = mouseX - ball.x;
+            const dy = mouseY - ball.y;
+            if (Math.sqrt(dx * dx + dy * dy) < ball.radius + 10) {
+                isDragging = true;
+                dragStartX = mouseX;
+                dragStartY = mouseY;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = canvas.getBoundingClientRect();
+            dragStartX = e.clientX - rect.left;
+            dragStartY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            // কিক করার ভেক্টর (পাওয়ার এবং ডিরেকশন)
+            const dx = ball.x - mouseX;
+            const dy = ball.y - mouseY;
+            
+            ball.vx = dx * 0.15; // পাওয়ার মাল্টিপ্লায়ার
+            ball.vy = dy * 0.15;
+            ball.isMoving = true;
+        });
+
+        // অ্যানিমেশন শুরু
+        animate();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+// <body oncontextmenu="return false" onclick="window.ReactNativeWebView.postMessage('tap')">
+//     ${scrollMode
+//       ? pages.map((p, i) => `
+//       <div class="page ${i === 0 ? 'cover-page' : ''}" data-page="${i}">
+//         ${p
+//           .split(/\n/)
+//           .filter(para => para.trim().length > 0)
+//           .map(para => `<p>${para.trim()}</p>`)
+//           .join('')
+//         }
+//       </div>
+//     `).join('')
+
+//       : isSpreadMode
+//         ? `
+//       <div style="display:flex; gap:20px; padding:20px;">
+        
+//         <!-- LEFT PAGE -->
+//         <div class="page" data-page="${currentPage}" style="width:48%">
+//           ${(pages[currentPage] || '')
+//           .split(/\n/)
+//           .filter(para => para.trim().length > 0)
+//           .map(para => `<p>${para.trim()}</p>`)
+//           .join('')
+//         }
+//         </div>
+
+//         <!-- RIGHT PAGE -->
+//         <div class="page" data-page="${currentPage + 1}" style="width:48%">
+//           ${(pages[currentPage + 1] || '')
+//           .split(/\n/)
+//           .filter(para => para.trim().length > 0)
+//           .map(para => `<p>${para.trim()}</p>`)
+//           .join('')
+//         }
+//         </div>
+
+//       </div>
+//     `
+
+//         : (pages[currentPage] || '')
+//           .split(/\n/)
+//           .filter(para => para.trim().length > 0)
+//           .map(para => `<p>${para.trim()}</p>`)
+//           .join('')
+//     }
+
+    
+//   </body>

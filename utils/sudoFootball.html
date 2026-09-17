@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tactical Football: Precision Striker</title>
+    <style>
+        body { margin: 0; background: #121212; color: #ffd700; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #gameWrapper { position: relative; border: 3px solid #ffd700; border-radius: 12px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
+        canvas { background: #1b3d2f; cursor: crosshair; display: block; border-radius: 10px; }
+        #ui { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; }
+        .stat { background: rgba(26, 26, 26, 0.95); padding: 8px 20px; border-radius: 30px; border: 1px solid #ffd700; font-weight: bold; min-width: 80px; text-align: center; }
+        #controls { margin-top: 20px; display: flex; gap: 15px; }
+        button { background: #ffd700; border: none; padding: 12px 35px; font-weight: bold; border-radius: 8px; cursor: pointer; color: #1a1a1a; transition: 0.3s; font-size: 16px; }
+        button:hover { background: #fff; transform: translateY(-2px); }
+        button:disabled { background: #444; color: #888; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <div id="gameWrapper">
+        <div id="ui">
+            <div class="stat">Time: <span id="timer">20</span>s</div>
+            <div class="stat" id="msg">Plan: Pass to Players then CLICK GOAL</div>
+            <div class="stat">Score: <span id="score">0</span></div>
+        </div>
+        <canvas id="fieldCanvas"></canvas>
+    </div>
+
+    <div id="controls">
+        <button id="startBtn">Kick Off</button>
+        <button id="resetBtn">Reset Game</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fieldCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 850;
+        canvas.height = 500;
+
+        let score = 0;
+        let planningMode = true;
+        let timeLeft = 20;
+        let passSequence = [0]; 
+        let shotTarget = null; // গোলের কোথায় শর্ট হবে
+        let ball = { x: 60, y: 250, targetIdx: 0, moving: false, speed: 10, radius: 9 };
+        let timerInterval;
+
+        const players = [
+            { x: 60, y: 250 }, 
+            { x: 250, y: 120 }, { x: 250, y: 380 },
+            { x: 450, y: 250 },
+            { x: 650, y: 150 }, { x: 650, y: 350 }
+        ];
+
+        const defenders = [
+            { x: 350, y: 250, range: 120, speed: 0.04, angle: 0 },
+            { x: 550, y: 200, range: 150, speed: 0.06, angle: Math.PI },
+            { x: 750, y: 250, range: 80, speed: 0.09, angle: 0, isGoalie: true }
+        ];
+
+        function drawField() {
+            ctx.fillStyle = '#1b3d2f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(20, 20, canvas.width-40, canvas.height-40);
+            
+            // গোল এরিয়া
+            ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+            ctx.fillRect(canvas.width - 25, 200, 20, 100);
+
+            // গোলপোস্ট ড্রয়িং
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ffd700';
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(canvas.width - 22, 200, 15, 100);
+            ctx.shadowBlur = 0;
+        }
+
+        function drawEntities() {
+            defenders.forEach(d => {
+                d.angle += d.speed;
+                d.currentY = d.y + Math.sin(d.angle) * d.range;
+                
+                ctx.beginPath();
+                ctx.arc(d.x, d.currentY, 15, 0, Math.PI*2);
+                ctx.fillStyle = d.isGoalie ? '#ff9800' : '#ff4b2b'; 
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+
+                if (ball.moving) {
+                    let dx = ball.x - d.x;
+                    let dy = ball.y - d.currentY;
+                    if (Math.sqrt(dx*dx + dy*dy) < 24) {
+                        endGame("Blocked! ডিফেন্ডার বল আটকে দিয়েছে।", false);
+                    }
+                }
+            });
+
+            players.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 15, 0, Math.PI*2);
+                ctx.fillStyle = passSequence.includes(i) ? '#ffd700' : '#e0e0e0';
+                ctx.fill();
+                ctx.strokeStyle = '#1a1a1a';
+                ctx.stroke();
+            });
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function update() {
+            drawField();
+            
+            // প্ল্যানিং লাইন ড্রয়িং (শট টার্গেট সহ)
+            if (planningMode && passSequence.length > 0) {
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+                ctx.moveTo(players[passSequence[0]].x, players[passSequence[0]].y);
+                passSequence.forEach(idx => ctx.lineTo(players[idx].x, players[idx].y));
+                if(shotTarget) ctx.lineTo(shotTarget.x, shotTarget.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            drawEntities();
+            drawBall();
+
+            if (ball.moving) {
+                let target;
+                if (ball.targetIdx < passSequence.length) {
+                    target = players[passSequence[ball.targetIdx]];
+                } else {
+                    target = shotTarget;
+                }
+
+                if (target) {
+                    let dx = target.x - ball.x;
+                    let dy = target.y - ball.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist > 5) {
+                        ball.x += (dx/dist) * ball.speed;
+                        ball.y += (dy/dist) * ball.speed;
+                    } else {
+                        ball.targetIdx++;
+                        if (ball.targetIdx > passSequence.length) {
+                            ball.moving = false;
+                            checkGoalResult();
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function checkGoalResult() {
+            if (ball.x > 810 && ball.y >= 200 && ball.y <= 300) {
+                score += 100;
+                document.getElementById('score').innerText = score;
+                endGame("GOAAAAAL!!! কি নিখুঁত শর্ট!", true);
+            } else {
+                endGame("মিস! বল মাঠের বাইরে।", false);
+            }
+        }
+
+        function endGame(msg, isWin) {
+            ball.moving = false;
+            clearInterval(timerInterval);
+            setTimeout(() => { alert(msg); resetGame(); }, 100);
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!planningMode) return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            // গোলপোস্ট এরিয়ায় ক্লিক করলে শট টার্গেট সেট হবে
+            if (mx > 810 && my > 200 && my < 300) {
+                shotTarget = { x: mx, y: my };
+                document.getElementById('msg').innerText = "Target Locked! Kick now.";
+                return;
+            }
+
+            // প্লেয়ার সিলেক্ট
+            players.forEach((p, i) => {
+                let dist = Math.sqrt((mx-p.x)**2 + (my-p.y)**2);
+                if (dist < 20) {
+                    if (passSequence[passSequence.length-1] !== i) {
+                        passSequence.push(i);
+                        shotTarget = null; // নতুন পাস দিলে শট টার্গেট রিসেট
+                    }
+                }
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!shotTarget) {
+                alert("পাস দেওয়া শেষ হলে গোলপোস্টের ভেতরে কোথাও ক্লিক করে শর্ট সিলেক্ট করুন!");
+                return;
+            }
+            planningMode = false;
+            ball.moving = true;
+            ball.targetIdx = 1; 
+            clearInterval(timerInterval);
+            document.getElementById('startBtn').disabled = true;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+
+        function resetGame() {
+            planningMode = true;
+            timeLeft = 20;
+            passSequence = [0]; 
+            shotTarget = null;
+            ball = { x: 60, y: 250, targetIdx: 0, moving: false, speed: 10, radius: 9 };
+            document.getElementById('timer').innerText = "20";
+            document.getElementById('msg').innerText = "Pass to Players -> Click Goal Area";
+            document.getElementById('startBtn').disabled = false;
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (planningMode) {
+                    timeLeft--;
+                    document.getElementById('timer').innerText = timeLeft;
+                    if (timeLeft <= 0) endGame("সময় শেষ!", false);
+                }
+            }, 1000);
+        }
+
+        startTimer();
+        update();
+    </script>
+</body>
+</html>

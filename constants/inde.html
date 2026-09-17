@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>GolpoJolpo Smart Editor - Pro</title>
+    <style>
+        :root {
+            --spread-bg: #e0d5c1;
+            --page-bg: #fdfaf1;
+            --text-color: #2c1e0f;
+            --fold-effect: linear-gradient(to right, rgba(0,0,0,0) 48%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 52%);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background: #121212; overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+        }
+
+        .main-wrapper { display: flex; width: 100%; height: 100vh; }
+
+        /* নেভিগেশন প্যানেল */
+        .nav-panel {
+            flex: 0 0 180px; background: #252525; color: #ddd;
+            padding: 15px 10px; border-right: 1px solid #444;
+            overflow-y: auto; font-size: 13px;
+        }
+        .nav-panel h3 { font-size: 14px; color: #fff; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 5px; }
+        .nav-item { 
+            padding: 8px; margin-bottom: 5px; cursor: pointer; border-radius: 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .nav-item:hover { background: #3d3d3d; color: #fff; }
+        .nav-chapter { font-weight: bold; color: #ffcc00; border-left: 2px solid #ffcc00; padding-left: 10px; }
+        .nav-page { color: #aaa; padding-left: 15px; font-size: 12px; }
+
+        /* এডিটর সেকশন */
+        .editor-section {
+            flex: 0 0 380px; padding: 20px;
+            background: #ffffff; display: flex; flex-direction: column;
+            border-right: 1px solid #444;
+        }
+
+        textarea {
+            flex: 1; padding: 15px; font-size: 15px;
+            line-height: 1.6; border: 1px solid #ccc;
+            border-radius: 8px; resize: none; outline: none;
+            background: #fdfdfd; color: #000;
+            scroll-behavior: smooth;
+        }
+
+        /* প্রিভিউ সেকশন */
+        .preview-section {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            background: #000; padding: 20px;
+        }
+
+        .device-simulator {
+            width: 95%; max-width: 820px;
+            aspect-ratio: 2.3 / 1; 
+            background: #333; padding: 5px;
+            border-radius: 12px; position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
+
+        .spreadContainer {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: row;
+            background-color: var(--spread-bg);
+            border-radius: 8px; overflow: hidden;
+            position: relative;
+        }
+
+        .spreadContainer::after {
+            content: ""; position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            background: var(--fold-effect);
+            pointer-events: none; z-index: 10;
+        }
+
+        .singlePage {
+            flex: 1; height: 100%;
+            background-color: var(--page-bg);
+            margin: 0 1px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        .webview-mock {
+            padding: 10px; height: 100%; display: flex; flex-direction: column;
+        }
+
+        .page-container {
+            flex: 1; padding: 20px 25px;
+            line-height: 1.7; font-size: 10px;
+            color: var(--text-color);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            text-align: justify;
+        }
+
+        p { margin-bottom: 0.8em; margin-top: 0; }
+        
+        .chapter-title { 
+            text-align: center; font-weight: bold; 
+            margin: 10% 0 5% 0; font-size: 14px;
+        }
+
+        .page-num { 
+            font-size: 9px; text-align: center; color: #aaa; 
+            margin-top: auto; padding-bottom: 5px;
+        }
+
+        .error-msg { color: #ff3e3e; font-size: 12px; font-weight: bold; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="nav-panel">
+        <h3>সূচিপত্র (Jump)</h3>
+        <div id="navList"></div>
+    </div>
+
+    <div class="editor-section">
+        <h2 style="font-size: 18px; margin-bottom: 5px; color: #333;">GolpoJolpo Editor</h2>
+        <textarea id="rawInput" placeholder="---chapter--- শিরোনাম&#10;গল্পের লেখা এখানে...&#10;---page---"></textarea>
+        <div id="overflowAlert" class="error-msg">⚠️ কন্টেন্ট পেজ লিমিট পার করেছে!</div>
+        <div style="margin-top:10px; font-size:12px; color: #666;">ক্যারেক্টার: <span id="charCount">0</span></div>
+    </div>
+
+    <div class="preview-section">
+        <div class="device-simulator">
+            <div class="spreadContainer">
+                <div class="singlePage">
+                    <div class="webview-mock">
+                        <div class="page-container" id="page1-target">
+                            <div id="content1"></div>
+                            <div id="pnum1" class="page-num">- ১ -</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="singlePage">
+                    <div class="webview-mock">
+                        <div class="page-container" id="page2-target">
+                            <div id="content2"></div>
+                            <div id="pnum2" class="page-num">- ২ -</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const rawInput = document.getElementById('rawInput');
+    const content1 = document.getElementById('content1');
+    const content2 = document.getElementById('content2');
+    const pnum1 = document.getElementById('pnum1');
+    const pnum2 = document.getElementById('pnum2');
+    const page1Target = document.getElementById('page1-target');
+    const page2Target = document.getElementById('page2-target');
+    const alertBox = document.getElementById('overflowAlert');
+    const navList = document.getElementById('navList');
+
+    const HEIGHT_LIMIT = 275; 
+
+    rawInput.addEventListener('input', updateEditor);
+    rawInput.addEventListener('keyup', updateEditor);
+    rawInput.addEventListener('click', updateEditor);
+
+    function updateEditor() {
+        const text = rawInput.value;
+        const cursorPosition = rawInput.selectionStart;
+        document.getElementById('charCount').innerText = text.length;
+        
+        content1.innerHTML = "";
+        content2.innerHTML = "";
+        alertBox.style.display = "none";
+
+        const pages = text.split('---page---');
+        
+        // বর্তমান কার্সর কোন পেজে আছে তা বের করা
+        let currentPageIndex = 0;
+        let cumulativeLength = 0;
+        for (let i = 0; i < pages.length; i++) {
+            cumulativeLength += pages[i].length + (i < pages.length - 1 ? 10 : 0); // 10 is length of '---page---'
+            if (cursorPosition <= cumulativeLength) {
+                currentPageIndex = i;
+                break;
+            }
+        }
+
+        // প্রিভিউতে সবসময় একজোড়া পাতা (Spread) দেখানো
+        // যদি কার্সর বেজোড় পাতায় থাকে (১, ৩, ৫...), তবে সেটি বামে দেখাবে
+        // যদি জোড় পাতায় থাকে, তবে আগেরটি বামে এবং কার্সরেরটি ডানে দেখাবে
+        let displayLeftIndex = currentPageIndex % 2 === 0 ? currentPageIndex : currentPageIndex - 1;
+        let displayRightIndex = displayLeftIndex + 1;
+
+        // বাম পাশের পাতা রেন্ডার
+        if(pages[displayLeftIndex] !== undefined) {
+            renderContent(pages[displayLeftIndex], content1);
+            pnum1.innerText = `- ${displayLeftIndex + 1} -`;
+        } else {
+            pnum1.innerText = "";
+        }
+
+        // ডান পাশের পাতা রেন্ডার
+        if(pages[displayRightIndex] !== undefined) {
+            renderContent(pages[displayRightIndex], content2);
+            pnum2.innerText = `- ${displayRightIndex + 1} -`;
+        } else {
+            pnum2.innerText = "";
+        }
+
+        updateNavigation(text);
+
+        if (page1Target.scrollHeight > HEIGHT_LIMIT || page2Target.scrollHeight > HEIGHT_LIMIT) {
+            alertBox.style.display = "block";
+        }
+    }
+
+    function renderContent(rawText, container) {
+        const paragraphs = rawText.split(/\n/).filter(p => p.trim());
+        paragraphs.forEach(pText => {
+            const isChapter = pText.includes('---chapter---');
+            const p = document.createElement(isChapter ? 'div' : 'p');
+            if(isChapter) {
+                p.className = 'chapter-title';
+                p.innerText = pText.replace('---chapter---', '');
+            } else {
+                p.innerText = pText;
+            }
+            container.appendChild(p);
+        });
+    }
+
+    function updateNavigation(text) {
+        navList.innerHTML = "";
+        const lines = text.split('\n');
+        let pageCount = 1;
+
+        lines.forEach((line, index) => {
+            if (line.includes('---chapter---')) {
+                const title = line.replace('---chapter---', '').trim() || "শিরোনামহীন চ্যাপ্টার";
+                createNavItem(title, index, 'nav-chapter');
+            }
+            if (line.includes('---page---')) {
+                pageCount++;
+                createNavItem(`পৃষ্ঠা - ${pageCount}`, index, 'nav-page');
+            }
+        });
+    }
+
+    function createNavItem(label, lineIndex, className) {
+        const div = document.createElement('div');
+        div.className = `nav-item ${className}`;
+        div.innerText = label;
+        div.onclick = () => jumpToLine(lineIndex);
+        navList.appendChild(div);
+    }
+
+    function jumpToLine(lineIndex) {
+        const lines = rawInput.value.split('\n');
+        let charIndex = 0;
+        for (let i = 0; i < lineIndex; i++) {
+            charIndex += lines[i].length + 1;
+        }
+        rawInput.focus();
+        rawInput.setSelectionRange(charIndex, charIndex);
+        
+        const lineHeight = 24; 
+        rawInput.scrollTop = lineIndex * lineHeight;
+        updateEditor(); // জাম্প করার পর প্রিভিউ আপডেট
+    }
+
+    updateEditor();
+</script>
+</body>
+</html>
