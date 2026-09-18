@@ -1,0 +1,48 @@
+﻿{
+  "id": "d2be9ea9-5a6c-49e3-a121-4320038241cc",
+  "status": "ERRORED",
+  "platform": "ANDROID",
+  "error": {
+    "errorCode": "UNKNOWN_ERROR",
+    "message": "Unknown error. See logs of the Install dependencies build phase for more information."
+  },
+  "artifacts": {},
+  "fingerprint": {
+    "id": "01a0afed-8e32-7406-a0a9-1c5ec45fab59",
+    "hash": "373bbe031158d195178df55d8805bf1f3ff52729"
+  },
+  "initiatingActor": {
+    "id": "6e21949d-4536-40ec-8dbd-8c6866a54a3b",
+    "displayName": "shahab_artamic"
+  },
+  "logFiles": [
+    "https://storage.googleapis.com/eas-workflows-production/logs/c4226312-dd88-4bee-abc5-b68a595b99ca/d2be9ea9-5a6c-49e3-a121-4320038241cc/2026-09-17T16%3A02%3A24Z-3b139919-8fe8-42af-9f64-0a34d04e394c.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260917%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260917T160419Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=144a23ee4ac0313c026e9cab8569f2ec56de0cc4d3cd36593617f3573c4227b3e7d49a383422f2cb7834493a733ec372bd84f92ccf46da809c56079229fd45ed0a05be9665aee1fb74ceffc4e8b2259ebe5e0bd116f5efc3e5bc8443c9b32549b57af27ec7a8e974b02e428758ae59d10c9ceb6733db88edead052a643cc34882d49f3950aa7ac7d3ce274278def9b81c01362842cbb7e94f372584e17d086ef3b793fd83ec00efbd906eee208298efb027eb7ed86e316c69333a3a1d9f5ecaffd4718836c163a1e934468628a58230a9ffdbfb9584f935ce02f356b0ff5583cc14ed9ec285c11cb6eac7325f2c3db4c3c1f31397f383073fea765e144998f8b"
+  ],
+  "project": {
+    "id": "c4226312-dd88-4bee-abc5-b68a595b99ca",
+    "name": "Testing",
+    "slug": "Testing",
+    "ownerAccount": {
+      "id": "cc78883c-7267-4e00-a9a6-f86f8464b37f",
+      "name": "shahab_artamic"
+    }
+  },
+  "distribution": "INTERNAL",
+  "buildProfile": "preview",
+  "sdkVersion": "57.0.0",
+  "appVersion": "1.0.0",
+  "appBuildVersion": "1",
+  "gitCommitHash": "9d76d1dbb708587ba083501e6b63efe7b380f0f7",
+  "gitCommitMessage": "first commit",
+  "priority": "NORMAL",
+  "createdAt": "2026-09-17T15:12:56.296Z",
+  "updatedAt": "2026-09-17T16:02:38.044Z",
+  "completedAt": "2026-09-17T16:02:37.840Z",
+  "expirationDate": "2026-10-01T15:12:56.362Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 3022,
+    "buildQueueTime": 2969247,
+    "buildDuration": 9275
+  }
+}

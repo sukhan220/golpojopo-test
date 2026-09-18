@@ -28,6 +28,7 @@
     "expo-blur": "~57.0.3",
     "expo-build-properties": "~57.0.20",
     "expo-constants": "~57.0.18",
+    "expo-dev-client": "~57.0.19",
     "expo-file-system": "~57.0.7",
     "expo-font": "~57.0.4",
     "expo-haptics": "~57.0.3",
@@ -44,6 +45,7 @@
     "expo-symbols": "~57.0.3",
     "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
+    "firebase": "^12.19.0",
     "marked": "^17.0.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -68,6 +70,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@react-native-community/cli": "^20.2.0",
     "@types/react": "~19.2.4",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~57.0.2",
@@ -82,5 +85,10 @@
       }
     }
   },
-  "private": true
+  "private": true,
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "@firebase/util@1.12.1": true,
+    "unrs-resolver": true
+  }
 }

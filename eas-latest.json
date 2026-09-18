@@ -1,0 +1,44 @@
+﻿{
+  "id": "b708179e-7c62-4328-9337-687b7554ce42",
+  "status": "ERRORED",
+  "platform": "ANDROID",
+  "error": {
+    "errorCode": "UNKNOWN_ERROR",
+    "message": "Unknown error. See logs of the Install dependencies build phase for more information."
+  },
+  "artifacts": {},
+  "initiatingActor": {
+    "id": "6e21949d-4536-40ec-8dbd-8c6866a54a3b",
+    "displayName": "shahab_artamic"
+  },
+  "logFiles": [
+    "https://storage.googleapis.com/eas-workflows-production/logs/c4226312-dd88-4bee-abc5-b68a595b99ca/b708179e-7c62-4328-9337-687b7554ce42/2026-09-17T17%3A05%3A18Z-dd8af4c4-e613-4af6-9b9b-1f7d468afde9.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260917%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260917T171213Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=7ae2377797c25665eb1fa1130166724a6a2f80ced4aac81ca04c8ea1ab1aa4eec86a3c5cc23910311a9b68804b3ec21504c4ce994e579ae37970c66f2ba75b5985f4268f144722c293ba48306d909ec66fe04039816f4cdf6cc44eafcc08cd22ef37d434f57220f79ffcb7eff93e2ad96f20788c747d474e100ce26a812c1274e22ef6a00445fc1a1d659de571cdde3fb019f4d36ea39093ea828a1660e58e405557603dddee42a2da10923f8620adcb6877225a22ee7997846647f2bae41e3b33948a61477dd3930e70af10ed0b1db1809281e0e9bb05d2d2c9c501ea6d1043017bfaae53490c8e7d37c200be2c4d472d65fa52c7d70d9376904d218d507a2d"
+  ],
+  "project": {
+    "id": "c4226312-dd88-4bee-abc5-b68a595b99ca",
+    "name": "Testing",
+    "slug": "Testing",
+    "ownerAccount": {
+      "id": "cc78883c-7267-4e00-a9a6-f86f8464b37f",
+      "name": "shahab_artamic"
+    }
+  },
+  "distribution": "INTERNAL",
+  "buildProfile": "preview",
+  "sdkVersion": "57.0.0",
+  "appVersion": "1.0.0",
+  "appBuildVersion": "1",
+  "gitCommitHash": "9d76d1dbb708587ba083501e6b63efe7b380f0f7",
+  "gitCommitMessage": "first commit",
+  "priority": "NORMAL",
+  "createdAt": "2026-09-17T16:17:10.056Z",
+  "updatedAt": "2026-09-17T17:05:32.014Z",
+  "completedAt": "2026-09-17T17:05:31.835Z",
+  "expirationDate": "2026-10-01T16:17:10.105Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 4169,
+    "buildQueueTime": 2888569,
+    "buildDuration": 9041
+  }
+}

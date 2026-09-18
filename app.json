@@ -7,21 +7,16 @@
     "icon": "./assets/images/icon.png",
     "scheme": "testing",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true
     },
-
-   
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
-      "package": "com.shahab_artamic.Testing",
-      "newArchEnabled": false 
+      "package": "com.shahab_artamic.Testing"
     },
     "web": {
       "bundler": "metro",
@@ -39,13 +34,12 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      
       [
         "expo-build-properties",
         {
           "android": {
             "minSdkVersion": 26,
-            "compileSdkVersion": 35,
+            "compileSdkVersion": 36,
             "targetSdkVersion": 35
           }
         }
@@ -70,8 +64,10 @@
             }
           }
         }
-      ]
-      
+      ],
+      "expo-font",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -84,4 +80,3 @@
     }
   }
 }
- 
