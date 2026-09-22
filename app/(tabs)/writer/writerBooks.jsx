@@ -1,25 +1,24 @@
 
 
-import React, { useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    TouchableOpacity,
-    Image,
-    StyleSheet,
-    ActivityIndicator,
-    Appearance,
-    SafeAreaView,
-    StatusBar,
-    Platform
-} from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import Header from '@/components/buildApp/header';
 import { Colors } from '@/constants/Colors';
 import { db } from '@/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Appearance,
+    FlatList,
+    Image,
+    Platform,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
 
 const colorScheme = Appearance.getColorScheme();
 const themes = colorScheme === 'dark' ? Colors.dark : Colors.light;
@@ -238,7 +237,7 @@ const themes = colorScheme === 'dark' ? Colors.dark : Colors.light;
 
 
 export default function WriterBooks() {
-    const route = useRoute();
+    const route = { params: useLocalSearchParams() };
     const navigation = useNavigation();
     const writerData = JSON.parse(route.params.writerName);
 

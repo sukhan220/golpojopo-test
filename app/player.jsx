@@ -4,13 +4,13 @@
 
 import { useAudioContext } from '@/context/audioContext';
 import { useLibrary } from '@/context/libraryContext';
-import { db } from "@/firebase"; // তোমার firebase config ফাইল
+import { db } from "@/firebase"; //firebase config ফাইল
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import Slider from '@react-native-community/slider';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { doc, getDoc } from "firebase/firestore";
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Dimensions, Image, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { AudioPro, useAudioPro } from 'react-native-audio-pro';
 
@@ -21,8 +21,9 @@ const { width } = Dimensions.get('window');
 const GOLD = '#D4AF37';
 const BG = '#0F0F0F';
 
-export default PlayerScreen = () => {
-  const { params } = useRoute();
+
+const PlayerScreen = () => {
+  const params = useLocalSearchParams();
   const navigation = useNavigation();
   const parsedBook = useMemo(() => params?.book ? JSON.parse(params.book) : null, [params]);
 
@@ -529,3 +530,6 @@ const styles = StyleSheet.create({
   clipTimeLabel: { color: '#555', fontSize: 9, fontWeight: 'bold', marginBottom: 2 },
   clipTimeValue: { color: GOLD, fontSize: 16, fontWeight: '700', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' },
 });
+
+
+export default PlayerScreen;

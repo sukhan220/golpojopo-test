@@ -4,19 +4,19 @@
 import { useAudioContext } from '@/context/audioContext';
 import { useLibrary } from '@/context/libraryContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useMemo, useState } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useMemo, useState } from 'react';
 import {
-  Dimensions,
-  Image,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Dimensions,
+    Image,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { AudioPro } from 'react-native-audio-pro';
 
@@ -25,7 +25,7 @@ const GOLD = '#D4AF37';
 const BG = '#0F0F0F';
 
 export default function BookDetailsScreen() {
-  const route = useRoute();
+  const route = { params: useLocalSearchParams() };
   const navigation = useNavigation();
 
   const { book: bookString } = route.params;

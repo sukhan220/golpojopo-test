@@ -45,10 +45,10 @@ import SPEED_MAP from '@/utils/speedMap';
 import { Ionicons } from '@expo/vector-icons';
 import PageFlipper from '@laffy1309/react-native-page-flipper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import * as NavigationBar from 'expo-navigation-bar';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   SafeAreaView,
@@ -70,7 +70,7 @@ const GOLD = '#D4AF37';
 /* ================= 2. MAIN VIEWER ================= */
 export default function PaginatedWebViewViewer() {
   const navigation = useNavigation();
-  const route = useRoute();
+  const route = { params: useLocalSearchParams() };
   const { book } = route.params;
   const parsedBook = JSON.parse(book);
   const insets = useSafeAreaInsets();
@@ -153,44 +153,44 @@ export default function PaginatedWebViewViewer() {
   // কম্পোনেন্টের ভেতরে:
   const [selectedColor, setSelectedColor] = useState(HIGHLIGHT_COLORS[0]);
   const [themeIndex, setThemeIndex] = useState(0);
-  const [startTheme,setStartTheme]= useState(null);
- 
- 
+  const [startTheme, setStartTheme] = useState(null);
+
+
 
   const themes = [
-{
-  name: 'book',
-  bg: '#e0d8c3',
-  pageBg: '#fdfaf1',
-  text: '#2c1e0f',
-  highlightBg: '#ffe58a',
-  highlightDarkBg: '#665000',
-  highlightDarkText: '#ffffff',
-  shadowLight: '0 4px 15px rgba(0,0,0,0.1)',
-  shadowDark: '0 4px 15px rgba(0,0,0,0.5)'
-},
-  { 
-    name: 'paper', // আপনার বর্তমান লাইট থিম
-    bg: '#d6d1c7', 
-    pageBg: '#f4f1ea', // কাগজের মতো হালকা ঘিয়া বা অফ-হোয়াইট
-    text: '#2c2c2c'    // একদম কালো নয়, ডার্ক গ্রে যা পড়ার জন্য আরামদায়ক
-  },
-  { 
-    name: 'sepia', // ক্লাসিক ওল্ড বুক ভাইব
-    bg: '#c5b08b', 
-    pageBg: '#e9dcc9', // পুরনো বইয়ের পাতার কালার
-    text: '#433422' 
-  },
-  { 
-    name: 'night', // কিন্ডেল ডার্ক মোড
-    bg: '#121212', 
-    pageBg: '#1f1f1f', // পিওর ব্ল্যাক নয়, সফট ডার্ক
-    text: '#b0b0b0'    // হালকা ছাই রঙের লেখা যা অন্ধকারে চোখের ক্ষতি করে না
-  }
+    {
+      name: 'book',
+      bg: '#e0d8c3',
+      pageBg: '#fdfaf1',
+      text: '#2c1e0f',
+      highlightBg: '#ffe58a',
+      highlightDarkBg: '#665000',
+      highlightDarkText: '#ffffff',
+      shadowLight: '0 4px 15px rgba(0,0,0,0.1)',
+      shadowDark: '0 4px 15px rgba(0,0,0,0.5)'
+    },
+    {
+      name: 'paper', // আপনার বর্তমান লাইট থিম
+      bg: '#d6d1c7',
+      pageBg: '#f4f1ea', // কাগজের মতো হালকা ঘিয়া বা অফ-হোয়াইট
+      text: '#2c2c2c'    // একদম কালো নয়, ডার্ক গ্রে যা পড়ার জন্য আরামদায়ক
+    },
+    {
+      name: 'sepia', // ক্লাসিক ওল্ড বুক ভাইব
+      bg: '#c5b08b',
+      pageBg: '#e9dcc9', // পুরনো বইয়ের পাতার কালার
+      text: '#433422'
+    },
+    {
+      name: 'night', // কিন্ডেল ডার্ক মোড
+      bg: '#121212',
+      pageBg: '#1f1f1f', // পিওর ব্ল্যাক নয়, সফট ডার্ক
+      text: '#b0b0b0'    // হালকা ছাই রঙের লেখা যা অন্ধকারে চোখের ক্ষতি করে না
+    }
 
   ];
 
- 
+
 
   const { width, height } = useWindowDimensions();
   const [zoomActive, setZoomActive] = useState(false);
@@ -215,44 +215,34 @@ export default function PaginatedWebViewViewer() {
   });
 
 
-// ১. অ্যাপ যখন প্রথম লোড হবে, তখন সেভ করা থিম খুঁজে বের করবে
-useEffect(() => {
-  const loadSavedTheme = async () => {
-    try {
-      const savedIndex = await AsyncStorage.getItem('user_theme_index');
-      setStartTheme(themes[savedIndex ? Number(savedIndex) : 0]);
-      if (savedIndex !== null) {
-        setThemeIndex(parseInt(savedIndex));
+  // ১. অ্যাপ যখন প্রথম লোড হবে, তখন সেভ করা থিম খুঁজে বের করবে
+  useEffect(() => {
+    const loadSavedTheme = async () => {
+      try {
+        const savedIndex = await AsyncStorage.getItem('user_theme_index');
+        setStartTheme(themes[savedIndex ? Number(savedIndex) : 0]);
+        if (savedIndex !== null) {
+          setThemeIndex(parseInt(savedIndex));
+        }
+      } catch (e) {
+        console.error("Failed to load theme", e);
       }
+    };
+    loadSavedTheme();
+  }, []);
+
+  // ২. থিম টগল করার সময় সেটি সেভ করে রাখা
+  const toggleTheme = async () => {
+    const nextIndex = (themeIndex + 1) % themes.length;
+    setThemeIndex(nextIndex);
+
+    try {
+      await AsyncStorage.setItem('user_theme_index', nextIndex.toString());
     } catch (e) {
-      console.error("Failed to load theme", e);
+      console.error("Failed to save theme", e);
     }
   };
-  loadSavedTheme();
-}, []);
 
-// ২. থিম টগল করার সময় সেটি সেভ করে রাখা
-const toggleTheme = async () => {
-  const nextIndex = (themeIndex + 1) % themes.length;
-  setThemeIndex(nextIndex);
-  
-  try {
-    await AsyncStorage.setItem('user_theme_index', nextIndex.toString());
-  } catch (e) {
-    console.error("Failed to save theme", e);
-  }
-};
-
-
-  // const toggleTheme = () => {
-  //   const nextIndex = (themeIndex + 1) % themes.length;
-  //   setThemeIndex(nextIndex);
-
-  //   const selectedTheme = themes[nextIndex];
-  //   // WebView-তে থিম ডাটা পাঠানো
-  //   const js = `window.applyTheme(${JSON.stringify(selectedTheme)}); true;`;
-  //   webRef.current?.injectJavaScript(js);
-  // };
 
 
   const triggerOverlay = () => {
@@ -433,32 +423,45 @@ const toggleTheme = async () => {
 
 
 
-  const handlePrev = () => {
+  // const handlePrev = () => {
 
-    if (currentPage < 1) return;
+  //   if (currentPage < 1) return;
 
-    if (scrollMode) {
+  //   if (scrollMode) {
 
-      const prev = currentPage - 2;
-      console.log("ii" + " " + prev)
-      setCurrentPage(prev);
-      handleJumpPage(prev);
-    } else {
+  //     const prev = currentPage - 2;
+  //     console.log("ii" + " " + prev)
+  //     setCurrentPage(prev);
+  //     handleJumpPage(prev);
+  //   } else {
 
-      setCurrentPage(prev);
-    }
-  };
+  //     setCurrentPage(prev);
+  //   }
+  // };
+
+
 
 
   // আপনার React Native কম্পোনেন্টের ভেতরে
-useEffect(() => {
-  if (themes[themeIndex]) {
-    const selectedTheme = themes[themeIndex];
-    // window.applyTheme আপনার htmlContent এর ভেতরে অলরেডি লেখা আছে
-    const js = `window.applyTheme(${JSON.stringify(selectedTheme)}); true;`;
-    webRef.current?.injectJavaScript(js);
-  }
-}, [themeIndex]); // শুধু themeIndex পরিবর্তন হলে এটি চলবে
+  const handlePrev = () => {
+    if (currentPage < 1) return;
+
+    const prev = currentPage - 1; // বা প্রয়োজন অনুযায়ী পেজ কমান
+    setCurrentPage(prev);
+
+    if (scrollMode) {
+      handleJumpPage(prev);
+    }
+  };
+
+  useEffect(() => {
+    if (themes[themeIndex]) {
+      const selectedTheme = themes[themeIndex];
+      // window.applyTheme আপনার htmlContent এর ভেতরে অলরেডি লেখা আছে
+      const js = `window.applyTheme(${JSON.stringify(selectedTheme)}); true;`;
+      webRef.current?.injectJavaScript(js);
+    }
+  }, [themeIndex]); // শুধু themeIndex পরিবর্তন হলে এটি চলবে
 
 
 
@@ -577,12 +580,21 @@ useEffect(() => {
 
 
 
-    const history = library?.history?.[parsedBook.id];
+    // const history = library?.history?.[parsedBook.id];
 
-    setCurrentPage(history.page);
+    // setCurrentPage(history.page);
+
+    // setTimeout(() => {
+    //   handleJumpPage(currentPage);
+    // }, 1000);
+
+    const history = library?.history?.[parsedBook.id];
+    const targetPage = history?.page ?? 0;
+
+    setCurrentPage(targetPage);
 
     setTimeout(() => {
-      handleJumpPage(currentPage);
+      handleJumpPage(targetPage);
     }, 1000);
 
 
@@ -887,26 +899,48 @@ useEffect(() => {
     return () => clearTimeout(saveTimer.current);
   }, [currentPage, lastScrollY]);
 
+  // useEffect(() => {
+  //   if (!isLandscape || !flipperRef.current) return;
+
+  //   const spreadIndex = Math.floor(currentPage / 2);
+
+  //   setTimeout(() => {
+  //     flipperRef.current.goToPage(spreadIndex);
+  //     console.log('goToPage → spreadIndex:', spreadIndex);
+  //   }, 200);
+  // }, [isLandscape, currentPage]);
+
+
   useEffect(() => {
-    if (!isLandscape || !flipperRef.current) return;
+    if (!isLandscape) return;
 
     const spreadIndex = Math.floor(currentPage / 2);
 
-    setTimeout(() => {
-      flipperRef.current.goToPage(spreadIndex);
+    const timer = setTimeout(() => {
+      flipperRef.current?.goToPage?.(spreadIndex);
       console.log('goToPage → spreadIndex:', spreadIndex);
-    }, 200);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [isLandscape, currentPage]);
 
-  useEffect(() => {
-    if (isLandscape) {
-      // অ্যান্ড্রয়েডের জন্য ইমারসিভ মোড
-      NavigationBar.setVisibilityAsync("hidden");
-      NavigationBar.setBehaviorAsync("sticky-swipe");
-    } else {
-      NavigationBar.setVisibilityAsync("visible");
-    }
-  }, [isLandscape]);
+  // useEffect(() => {
+  //   if (isLandscape) {
+  //     // অ্যান্ড্রয়েডের জন্য ইমারসিভ মোড
+  //     NavigationBar.setVisibilityAsync("hidden");
+  //     NavigationBar.setBehaviorAsync("sticky-swipe");
+  //   } else {
+  //     NavigationBar.setVisibilityAsync("visible");
+  //   }
+  // }, [isLandscape]);
+
+useEffect(() => {
+  if (isLandscape) {
+    NavigationBar.setVisibilityAsync("hidden");
+  } else {
+    NavigationBar.setVisibilityAsync("visible");
+  }
+}, [isLandscape]);
 
   const saveBookmarks = async (newList) => {
     setBookmarks(newList);
@@ -1085,7 +1119,7 @@ useEffect(() => {
                   </View>
                 </View>
               )}
- 
+
             />
 
 
@@ -1128,7 +1162,7 @@ useEffect(() => {
 
               originWhitelist={['*']}
               source={{
-                html: htmlContent(pages, 0, scrollMode, isSpreadMode, fontFamily, fontSize,startTheme)
+                html: htmlContent(pages, 0, scrollMode, isSpreadMode, fontFamily, fontSize, startTheme)
               }}
 
               // scrollEnabled={scrollMode}
@@ -1323,12 +1357,18 @@ useEffect(() => {
                   setFullscreen(nextFullscreen);
 
                   if (nextFullscreen) {
-                    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+                    ScreenOrientation.lockAsync(
+                      ScreenOrientation.OrientationLock.LANDSCAPE
+                    );
+
                     NavigationBar.setVisibilityAsync("hidden");
-                    NavigationBar.setBehaviorAsync("sticky-swipe");
                   } else {
-                    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+                    ScreenOrientation.lockAsync(
+                      ScreenOrientation.OrientationLock.PORTRAIT_UP
+                    );
+
                     NavigationBar.setVisibilityAsync("visible");
+
                     setTimeout(() => {
                       ScreenOrientation.unlockAsync();
                     }, 500);

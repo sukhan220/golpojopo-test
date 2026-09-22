@@ -33,8 +33,8 @@ import { useLibrary } from '@/context/libraryContext';
 import { Ionicons } from '@expo/vector-icons';
 import PageFlipper from '@laffy1309/react-native-page-flipper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -121,7 +121,7 @@ const FontSelector = ({ selectedFont, onSelect }) => {
 /* ================= 2. MAIN VIEWER ================= */
 export default function PaginatedWebViewViewer() {
   const navigation = useNavigation();
-  const route = useRoute();
+  const route = { params: useLocalSearchParams() };
   const { book } = route.params;
   const parsedBook = JSON.parse(book);
   const insets = useSafeAreaInsets();

@@ -8,7 +8,7 @@ export const CANVAS_HEIGHT = (CANVAS_WIDTH * 9) / 16;
 const GOLD = '#D4AF37';
 
 
-export default styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5dc' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
@@ -294,3 +294,5 @@ jumpBtnText: {
   
 
 });
+
+export default styles;

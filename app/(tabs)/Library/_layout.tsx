@@ -1,10 +1,28 @@
-import { Stack } from 'expo-router';
+// import { Stack } from 'expo-router';
+
+// export default function LibraryLayout() {
+//   return (
+//     <Stack screenOptions={{ headerShown: false }}>
+//       <Stack.Screen name="index" />
+//       <Stack.Screen name="audio" />
+//       <Stack.Screen name="book" />
+//     </Stack>
+//   );
+// }
+
+
+import { Stack } from "expo-router";
 
 export default function LibraryLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Stack.Screen name="index" />
       <Stack.Screen name="audio" />
+      <Stack.Screen name="audioDetails" />
       <Stack.Screen name="book" />
     </Stack>
   );

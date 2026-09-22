@@ -1,5 +1,4 @@
-
-  export default SPEED_MAP = {
+const SPEED_MAP = {
     1: 0.4,
     1.05: 0.45,
     1.1: 0.5,
@@ -22,3 +21,6 @@
     1.95: 1.4,
     2: 1.5,
   };
+
+
+  export default SPEED_MAP;

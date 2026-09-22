@@ -3,17 +3,17 @@
 // SearchScreen.jsx
 import { db } from "@/firebase";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native"; // ✅ add
+import { useNavigation } from 'expo-router';
 import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function SearchScreen() {

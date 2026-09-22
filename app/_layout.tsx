@@ -57,12 +57,11 @@
 //   );
 // }
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 // import AppIntro from '../components/animations/AppIntro';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -107,8 +106,7 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <LibraryProvider>
           <AudioProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <Stack screenOptions={{ headerShown: false }}>
+            <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="player" />
                 <Stack.Screen name="reader" />
@@ -117,10 +115,9 @@ export default function RootLayout() {
                 <Stack.Screen name="writerBooks" />
                 <Stack.Screen name="library" />
                 <Stack.Screen name="+not-found" />
-              </Stack>
-              <StatusBar style="auto" />
-              <MiniPlayer />
-            </ThemeProvider>
+            </Stack>
+            <StatusBar style="auto" />
+            <MiniPlayer />
           </AudioProvider>
         </LibraryProvider>
       </GestureHandlerRootView>

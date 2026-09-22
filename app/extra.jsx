@@ -1,20 +1,20 @@
 
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Modal,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Modal,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
@@ -80,7 +80,7 @@ const FontSelector = ({ selectedFont, onSelect }) => {
 
 export default function PaginatedMarkdownViewer() {
   // Navigation + route data
-  const route = useRoute();
+  const route = { params: useLocalSearchParams() };
   const { book } = route.params;
   const parsedBook = JSON.parse(book);
   const navigation = useNavigation();

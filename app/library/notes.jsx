@@ -4,20 +4,20 @@
 
 
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 import { useLibrary } from '@/context/libraryContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
 
 import DiaryTab from '@/components/notes/DiaryTab';
 import ListTab from '@/components/notes/ListTab';

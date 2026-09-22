@@ -1,34 +1,33 @@
 
 
 // book.jsx
-import React, { useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    TouchableOpacity,
-    Image,
-    StyleSheet,
-    ActivityIndicator,
-    Appearance,
-    SafeAreaView,
-    StatusBar,
-    Platform
-} from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import { Colors } from '@/constants/Colors';
 import { db } from '@/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Appearance,
+    FlatList,
+    Image,
+    Platform,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
 
 const colorScheme = Appearance.getColorScheme();
 const themes = colorScheme === 'dark' ? Colors.dark : Colors.light;
 
 
-export default function audio() {
-    const route = useRoute();
-    const navigation = useNavigation();
-    const { categoryId, categoryName } = route.params || {};
+export default function BookScreen() {
+    const router = useRouter();
+    const { categoryId, categoryName } = useLocalSearchParams();
 
     const [writers, setWriters] = useState([]);
     const [books, setBooks] = useState([]);
@@ -89,7 +88,7 @@ export default function audio() {
 
 
     const handleBookPress = (item) => {
-        navigation.navigate('reader', { book: JSON.stringify(item) });
+        router.push({ pathname: '/reader', params: { book: JSON.stringify(item) } });
     };
 
     // লেখককে রেন্ডার করার জন্য FlatList আইটেম
@@ -125,7 +124,7 @@ export default function audio() {
             <View style={styles.headerContainer}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => router.back()}
                 >
                     <Ionicons name="arrow-back-outline" size={28} color={themes.text} />
                 </TouchableOpacity>

@@ -3,20 +3,20 @@
 // NoteTab.jsx
 import { useLibrary } from '@/context/libraryContext';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 
 import { useAudioContext } from "@/context/audioContext";
@@ -34,7 +34,13 @@ export default function NoteTab({ library }) {
 
   const { preloadClip, isPlaying, position, duration, clipLoadedTrackId, state, activeClipId, setActiveClipId } = useAudioContext();
   const [playingClipId, setPlayingClipId] = useState(activeClipId);
-  const isFocused = useIsFocused();
+  const [isFocused, setIsFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, [])
+  );
   const timerRef = useRef(null);
   const slowNetTimeoutRef = useRef(null);
   const scrollRef = useRef(null); // ScrollView এর জন্য রিফ

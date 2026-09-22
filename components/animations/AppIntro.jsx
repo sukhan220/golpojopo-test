@@ -1,227 +1,482 @@
+// // // // //AppIntro.jsx
 
+// import { useEffect, useRef, useState } from 'react';
+// import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
+// import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
-//AppIntro.jsx
+// const PAPER_DARK = '#2b2d2f'; 
+// const PAPER_MID = '#4a4d50';
+// const BG_COLOR = '#ffffff';
 
-import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useEffect, useRef } from 'react';
-import { Animated, Dimensions, Easing, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+// const BENGALI_FONT = Platform.select({
+//     ios: 'Hind Siliguri',
+//     android: 'HindSiliguri-Bold',
+// });
 
-const GOLD = '#F3C623';
-const BOOK_WIDTH = 110;
-const PAGE_WIDTH = BOOK_WIDTH / 2;
-const CIRCLE_RADIUS = 35;
-const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+// const PATH_D = "M 50,230 Q 55,230 65,230 T 85,220 T 100,230 T 115,220 T 130,235 T 145,210 T 160,260 C 180,290 200,150 220,110 C 250,70 310,60 350,90 L 350,310 C 310,320 270,310 205,350 C 150,330 110,310 40,310 L 40,90 C 80,60 140,50 210,100";
 
-const WAVE_MAX_SIZE = 240;
+// const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+// const BRAND_TEXT = "গল্পজল্প";
+// const TAGLINE_TEXT = "Read • Listen • Write";
+
+// export default function AppIntro({ onFinish }) {
+//     const pathRef = useRef(null);
+//     const [pathLength, setPathLength] = useState(1500);
+//     const [isSvgReady, setIsSvgReady] = useState(false);
+
+//     const strokeDashoffset = useRef(new Animated.Value(1500)).current;
+
+//     const brandAnim = useRef(new Animated.Value(0)).current;
+//     const taglineCharAnims = useRef(TAGLINE_TEXT.split('').map(() => new Animated.Value(0))).current;
+
+//     const loaderFade = useRef(new Animated.Value(0)).current;
+//     const loaderProgress = useRef(new Animated.Value(0)).current;
+
+//     const handleLayout = () => {
+//         if (pathRef.current && pathRef.current.getTotalLength) {
+//             const totalLen = pathRef.current.getTotalLength();
+//             if (totalLen && totalLen > 0) {
+//                 setPathLength(totalLen);
+//                 strokeDashoffset.setValue(totalLen);
+//             }
+//         }
+//         setIsSvgReady(true);
+//     };
+
+//     useEffect(() => {
+//         if (!isSvgReady) return;
+
+//         const strokeTimer = setTimeout(() => {
+//             Animated.timing(strokeDashoffset, {
+//                 toValue: 0,
+//                 duration: 4000,
+//                 easing: Easing.inOut(Easing.ease),
+//                 useNativeDriver: true,
+//             }).start();
+//         }, 500);
+
+//         const triggerTime = 2500;
+
+//         const mainTimer = setTimeout(() => {
+//             Animated.timing(brandAnim, {
+//                 toValue: 1,
+//                 duration: 600,
+//                 easing: Easing.out(Easing.ease),
+//                 useNativeDriver: true,
+//             }).start();
+
+//             setTimeout(() => {
+//                 const taglineAnimations = taglineCharAnims.map((anim) =>
+//                     Animated.timing(anim, {
+//                         toValue: 1,
+//                         duration: 400,
+//                         easing: Easing.out(Easing.ease),
+//                         useNativeDriver: true,
+//                     })
+//                 );
+//                 Animated.stagger(40, taglineAnimations).start();
+//             }, 600);
+
+//             Animated.timing(loaderFade, {
+//                 toValue: 1,
+//                 duration: 800,
+//                 useNativeDriver: true,
+//             }).start();
+
+//             setTimeout(() => {
+//                 Animated.timing(loaderProgress, {
+//                     toValue: 1,
+//                     duration: 3000,
+//                     easing: Easing.bezier(0.1, 0.5, 0.5, 1),
+//                     useNativeDriver: true,
+//                 }).start(() => {
+//                     if (onFinish) {
+//                         setTimeout(onFinish, 300);
+//                     }
+//                 });
+//             }, 300);
+
+//         }, triggerTime);
+
+//         return () => {
+//             clearTimeout(strokeTimer);
+//             clearTimeout(mainTimer);
+//         };
+//     }, [isSvgReady]);
+
+//     return (
+//         <View style={styles.container}>
+//             <View style={styles.mainWrapper}>
+//                 <View style={styles.logoRowContainer}>
+//                     <View style={{ opacity: isSvgReady ? 1 : 0 }}>
+//                         <Svg viewBox="0 0 400 400" style={styles.svg}>
+//                             <Defs>
+//                                 <LinearGradient id="paperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+//                                     <Stop offset="0%" stopColor={PAPER_DARK} stopOpacity="1" />
+//                                     <Stop offset="100%" stopColor={PAPER_MID} stopOpacity="1" />
+//                                 </LinearGradient>
+//                             </Defs>
+//                             <AnimatedPath
+//                                 ref={pathRef}
+//                                 onLayout={handleLayout}
+//                                 d={PATH_D}
+//                                 fill="none"
+//                                 stroke="url(#paperGrad)"
+//                                 strokeWidth="12"
+//                                 strokeLinecap="round"
+//                                 strokeLinejoin="round"
+//                                 strokeDasharray={pathLength}
+//                                 strokeDashoffset={strokeDashoffset}
+//                             />
+//                         </Svg>
+//                     </View>
+
+//                     <View style={styles.textGroup}>
+//                         <Animated.Text
+//                             style={[
+//                                 styles.brandNameText,
+//                                 {
+//                                     opacity: brandAnim,
+//                                     transform: [
+//                                         {
+//                                             translateY: brandAnim.interpolate({
+//                                                 inputRange: [0, 1],
+//                                                 outputRange: [8, 0],
+//                                             }),
+//                                         },
+//                                     ],
+//                                 },
+//                             ]}
+//                         >
+//                             {BRAND_TEXT}
+//                         </Animated.Text>
+
+//                         <View style={styles.charRow}>
+//                             {TAGLINE_TEXT.split('').map((char, index) => {
+//                                 const anim = taglineCharAnims[index];
+//                                 return (
+//                                     <Animated.Text
+//                                         key={index}
+//                                         style={[
+//                                             styles.taglineChar,
+//                                             {
+//                                                 opacity: anim,
+//                                                 transform: [
+//                                                     {
+//                                                         translateY: anim.interpolate({
+//                                                             inputRange: [0, 1],
+//                                                             outputRange: [8, 0],
+//                                                         }),
+//                                                     },
+//                                                 ],
+//                                             },
+//                                         ]}
+//                                     >
+//                                         {char === ' ' ? '\u00A0' : char}
+//                                     </Animated.Text>
+//                                 );
+//                             })}
+//                         </View>
+//                     </View>
+//                 </View>
+
+//                 <Animated.View style={[styles.loadingSection, { opacity: loaderFade }]}>
+//                     <View style={styles.loaderBarBg}>
+//                         <Animated.View
+//                             style={[
+//                                 styles.loaderBarFill,
+//                                 {
+//                                     transform: [
+//                                         {
+//                                             translateX: loaderProgress.interpolate({
+//                                                 inputRange: [0, 1],
+//                                                 outputRange: [-240, 0],
+//                                             }),
+//                                         },
+//                                     ],
+//                                 },
+//                             ]}
+//                         />
+//                     </View>
+//                 </Animated.View>
+//             </View>
+//         </View>
+//     );
+// }
+
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: BG_COLOR,
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     mainWrapper: {
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         marginBottom: 60, // পুরো সিস্টেমকে স্ক্রিনের কিছুটা উপরে শিফট করার জন্য
+//     },
+//     logoRowContainer: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         gap: 16,
+//     },
+//     svg: {
+//         width: 110,
+//         height: 110,
+//         overflow: 'visible',
+//     },
+//     textGroup: {
+//         flexDirection: 'column',
+//         alignItems: 'flex-start',
+//         justifyContent: 'center',
+//     },
+//     charRow: {
+//         flexDirection: 'row',
+//     },
+//     brandNameText: {
+//         fontSize: 32,
+//         fontWeight: 'bold',
+//         fontFamily: BENGALI_FONT,
+//         color: PAPER_DARK,
+//         lineHeight: 40,
+//         includeFontPadding: false,
+//     },
+//     taglineChar: {
+//         fontSize: 10,
+//         fontWeight: '400',
+//         color: PAPER_MID,
+//         letterSpacing: 2,
+//         marginTop: 2,
+//         marginLeft: 1,
+//         textTransform: 'uppercase',
+//     },
+//     loadingSection: {
+//         width: 240,
+//         marginTop: 14,
+//         alignSelf: 'center',
+//     },
+//     loaderBarBg: {
+//         width: '100%',
+//         height: 2,
+//         backgroundColor: 'rgba(43, 45, 47, 0.12)',
+//         borderRadius: 4,
+//         overflow: 'hidden',
+//     },
+//     loaderBarFill: {
+//         width: '100%',
+//         height: '100%',
+//         backgroundColor: PAPER_DARK,
+//         borderRadius: 4,
+//     },
+// });
+
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
+import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
+
+const PAPER_DARK = '#2b2d2f'; 
+const PAPER_MID = '#4a4d50';
+const BG_COLOR = '#ffffff';
+
+const BENGALI_FONT = Platform.select({
+    ios: 'Hind Siliguri',
+    android: 'HindSiliguri-Bold',
+});
+
+const PATH_D = "M 50,230 Q 55,230 65,230 T 85,220 T 100,230 T 115,220 T 130,235 T 145,210 T 160,260 C 180,290 200,150 220,110 C 250,70 310,60 350,90 L 350,310 C 310,320 270,310 205,350 C 150,330 110,310 40,310 L 40,90 C 80,60 140,50 210,100";
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+const BRAND_TEXT = "গল্পজল্প";
 
 export default function AppIntro({ onFinish }) {
-    const bookFlip = useRef(new Animated.Value(0)).current;
-    const writingVibe = useRef(new Animated.Value(0)).current;
-    const smokeTrigger = useRef(new Animated.Value(0)).current;
-    const loaderProgress = useRef(new Animated.Value(0)).current;
-    const contentFade = useRef(new Animated.Value(0)).current;
-    const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+    const pathRef = useRef(null);
+    const [pathLength, setPathLength] = useState(1500);
+    const [isSvgReady, setIsSvgReady] = useState(false);
 
-    const readAnim = useRef(new Animated.Value(0)).current;
-    const listenAnim = useRef(new Animated.Value(0)).current;
-    const writeAnim = useRef(new Animated.Value(0)).current;
+    const strokeDashoffset = useRef(new Animated.Value(1500)).current;
 
-    const holeEffect = useRef(new Animated.Value(1)).current;
+    const brandAnim = useRef(new Animated.Value(0)).current;
     const loaderFade = useRef(new Animated.Value(0)).current;
-    
-    // ১. Wave এনিমেশনের জন্য একটি নতুন ভ্যালু যোগ করা হলো
-    const waveAnim = useRef(new Animated.Value(0)).current;
+    const loaderProgress = useRef(new Animated.Value(0)).current;
+
+    const handleLayout = () => {
+        if (pathRef.current && pathRef.current.getTotalLength) {
+            const totalLen = pathRef.current.getTotalLength();
+            if (totalLen && totalLen > 0) {
+                setPathLength(totalLen);
+                strokeDashoffset.setValue(totalLen);
+            }
+        }
+        setIsSvgReady(true);
+    };
 
     useEffect(() => {
-        Animated.sequence([
-            Animated.parallel([
-                Animated.timing(bookFlip, { toValue: 1, duration: 3000, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: true }),
-                // Animated.timing(smokeTrigger, { toValue: 1, duration: 2500, useNativeDriver: true }),
-                Animated.timing(contentFade, { toValue: 1, duration: 2000, useNativeDriver: true }),
-                Animated.timing(writingVibe, { toValue: 1, duration: 2000, useNativeDriver: true }),
+        if (!isSvgReady) return;
 
-                Animated.sequence([
-                    Animated.delay(700),
-                    Animated.stagger(400, [
-                        Animated.spring(readAnim, { toValue: 1, friction: 6, useNativeDriver: true }),
-                        Animated.spring(listenAnim, { toValue: 1, friction: 6, useNativeDriver: true }),
-                        Animated.spring(writeAnim, { toValue: 1, friction: 6, useNativeDriver: true }),
-                    ])
-                ])
-            ]),
+        const strokeTimer = setTimeout(() => {
+            Animated.timing(strokeDashoffset, {
+                toValue: 0,
+                duration: 4000,
+                easing: Easing.inOut(Easing.ease),
+                useNativeDriver: true,
+            }).start();
+        }, 500);
 
-            // ২. হোল ইফেক্ট শুরু হওয়ার পর, আমরা একটি সিকোয়েন্স তৈরি করবো
-            Animated.parallel([
-                // মেইন হোল ইফেক্ট (আইকন ভেতরে ঢোকা) আগের মতোই ১২০০ মিলি-সেকেন্ডে চলবে
-                Animated.timing(holeEffect, { toValue: 0, duration: 1200, easing: Easing.in(Easing.back(1)), useNativeDriver: true }),
-                
-                // এখানে Wave এনিমেশনটাকে দেরি করে শুরু করার জন্য সিকোয়েন্স ব্যবহার করা হলো
-                Animated.sequence([
-                    // আপনি কতটুকু দেরি বা ডিলি (delay) করতে চান? 
-                    // যেমন আমি ৫০০ মিলি-সেকেন্ড দেরি সেট করে দিচ্ছি:
-                    Animated.delay(1100), 
-                    
-                    // দেরি হওয়ার পর Wave টা প্লে হবে
-                    Animated.timing(waveAnim, { 
-                        toValue: 1, 
-                        duration: 1000, // Wave এর নিজের টাইম
-                        easing: Easing.out(Easing.quad), 
-                        useNativeDriver: true 
-                    }),
-                    
-                ])
-            ]),
+        const triggerTime = 2500;
 
-            Animated.parallel([
-                Animated.timing(loaderFade, { toValue: 1, duration: 400, useNativeDriver: true }),
-                Animated.timing(loaderProgress, { toValue: 1, duration: 1000, easing: Easing.out(Easing.quad), useNativeDriver: true })
-            ])
-        ]).start(() => {
-            setTimeout(() => { if (onFinish) onFinish(); }, 200);
-        });
-    }, []);
+        const mainTimer = setTimeout(() => {
+            Animated.timing(brandAnim, {
+                toValue: 1,
+                duration: 600,
+                easing: Easing.out(Easing.ease),
+                useNativeDriver: true,
+            }).start();
 
-    const mainFlip = bookFlip.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-180deg'] });
+            Animated.timing(loaderFade, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }).start();
 
-    const getAnimatedStyle = (anim, index) => {
-        const xOffset = index === 0 ? 60 : index === 2 ? -60 : 0;
-        return {
-            opacity: Animated.multiply(anim, holeEffect),
-            transform: [
-                { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [15, 0] }) },
-                { translateY: holeEffect.interpolate({ inputRange: [0, 1], outputRange: [-60, 0] }) },
-                { translateX: holeEffect.interpolate({ inputRange: [0, 1], outputRange: [xOffset, 0] }) },
-                { scale: Animated.multiply(anim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }), holeEffect) }
-            ]
+            setTimeout(() => {
+                Animated.timing(loaderProgress, {
+                    toValue: 1,
+                    duration: 3000,
+                    easing: Easing.bezier(0.1, 0.5, 0.5, 1),
+                    useNativeDriver: true,
+                }).start(() => {
+                    if (onFinish) {
+                        setTimeout(onFinish, 300);
+                    }
+                });
+            }, 300);
+
+        }, triggerTime);
+
+        return () => {
+            clearTimeout(strokeTimer);
+            clearTimeout(mainTimer);
         };
-    };
- 
-    return (
-        <View style={styles.splashContainer}>
-            <Animated.View style={styles.mainWrapper}>
-                <View style={styles.bookWrapper}>
-                    <Animated.View style={[styles.svgContainer, {
-                        transform: [{ translateX: writingVibe.interpolate({ inputRange: [0, 1], outputRange: [-2, 2] }) }]
-                    }]}>
-                        <Svg height={WAVE_MAX_SIZE} width={WAVE_MAX_SIZE} viewBox="0 0 100 100">
-                            {/* ৩. Wave Circle: এখন এটি নতুন waveAnim ভ্যালু ব্যবহার করবে */}
-                            <AnimatedCircle 
-                                cx="50" cy="50" 
-                                // waveAnim ০ থেকে ১ হওয়ার সময় ব্যাসার্ধ বাড়ে
-                                r={waveAnim.interpolate({ inputRange: [0, 1], outputRange: [CIRCLE_RADIUS, CIRCLE_RADIUS + 25] })} 
-                                stroke={GOLD} 
-                                strokeWidth="1.5" 
-                                fill="transparent"
-                                // waveAnim ০ থেকে ১ হওয়ার সময় অপাসিটি ০ -> ০.৮ -> ০ হয়
-                                opacity={waveAnim.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 0.8, 0] })}
-                            />
-                            
-                            {/* Drawing Circle: যেটা smokeTrigger দিয়ে আঁকা হয় */}
-                            <AnimatedCircle cx="50" cy="50" r={CIRCLE_RADIUS} stroke={GOLD} strokeWidth="2.5" fill="transparent"
-                                strokeDasharray={CIRCUMFERENCE}
-                                strokeDashoffset={smokeTrigger.interpolate({ inputRange: [0, 1], outputRange: [CIRCUMFERENCE, 0] })}
-                                strokeLinecap="round" rotation="-90" origin="50, 50"
-                            />
-                        </Svg>
-                    </Animated.View>
+    }, [isSvgReady]);
 
-                    <View style={styles.bookBase}>
-                        <View style={styles.pageLeftBase}>
-                            {[40, 60, 30].map((w, i) => (
-                                <Animated.View key={i} style={[styles.shadowLine, {
-                                    width: `${w}%`,
-                                    opacity: writingVibe.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }),
-                                    transform: [{ scaleX: writingVibe }]
-                                }]} />
-                            ))}
-                        </View>
-                        <View style={styles.pageRightBase}>
-                            {[50, 35, 65, 80].map((w, i) => (
-                                <Animated.View key={i} style={[styles.shadowLine, {
-                                    width: `${w}%`,
-                                    opacity: writingVibe.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }),
-                                    transform: [{ scaleX: writingVibe }]
-                                }]} />
-                            ))}
-                        </View>
-                        <Animated.View style={[styles.flipCard, {
-                            transform: [{ perspective: 1000 }, { translateX: -PAGE_WIDTH / 2 }, { rotateY: mainFlip }, { translateX: PAGE_WIDTH / 2 }],
-                            zIndex: bookFlip.interpolate({ inputRange: [0, 0.5, 0.51, 1], outputRange: [10, 10, 0, 0] })
-                        }]}>
-                            <View style={[styles.pageFace, styles.pageFront]}>
-                                {[60, 40, 70].map((w, i) => <View key={i} style={[styles.shadowLine, { width: `${w}%`, opacity: 0.5 }]} />)}
-                            </View>
-                            <Animated.View style={[styles.pageFace, styles.pageBack, { transform: [{ rotateY: '180deg' }] }]}>
-                                {[60, 50, 70, 30].map((w, i) => <View key={i} style={[styles.shadowLine, { width: `${w}%`, opacity: 0.7 }]} />)}
-                            </Animated.View>
-                        </Animated.View>
-                    </View>
+    return (
+        <View style={styles.container}>
+            <View style={styles.mainWrapper}>
+                {/* ১. লোগো */}
+                <View style={{ opacity: isSvgReady ? 1 : 0 }}>
+                    <Svg viewBox="0 0 400 400" style={styles.svg}>
+                        <Defs>
+                            <LinearGradient id="paperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <Stop offset="0%" stopColor={PAPER_DARK} stopOpacity="1" />
+                                <Stop offset="100%" stopColor={PAPER_MID} stopOpacity="1" />
+                            </LinearGradient>
+                        </Defs>
+                        <AnimatedPath
+                            ref={pathRef}
+                            onLayout={handleLayout}
+                            d={PATH_D}
+                            fill="none"
+                            stroke="url(#paperGrad)"
+                            strokeWidth="12"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeDasharray={pathLength}
+                            strokeDashoffset={strokeDashoffset}
+                        />
+                    </Svg>
                 </View>
 
-                <Animated.View style={{ opacity: contentFade, marginTop: 30 }}>
-                    <View style={styles.logoTextRow}>
-                        <Text style={[styles.brandText, { color: '#fff' }]}>গল্প </Text>
-                        <Text style={[styles.brandText, { color: GOLD }]}>জল্প</Text>
+                {/* ২. ব্র্যান্ড নেম */}
+                <Animated.Text
+                    style={[
+                        styles.brandNameText,
+                        {
+                            opacity: brandAnim,
+                            transform: [
+                                {
+                                    translateY: brandAnim.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [6, 0],
+                                    }),
+                                },
+                            ],
+                        },
+                    ]}
+                >
+                    {BRAND_TEXT}
+                </Animated.Text>
+
+                {/* ৩. লোডার বার */}
+                <Animated.View style={[styles.loadingSection, { opacity: loaderFade }]}>
+                    <View style={styles.loaderBarBg}>
+                        <Animated.View
+                            style={[
+                                styles.loaderBarFill,
+                                {
+                                    transform: [
+                                        {
+                                            translateX: loaderProgress.interpolate({
+                                                inputRange: [0, 1],
+                                                outputRange: [-160, 0],
+                                            }),
+                                        },
+                                    ],
+                                },
+                            ]}
+                        />
                     </View>
                 </Animated.View>
-
-                <View style={styles.stepsContainer}>
-                    <Animated.View style={[styles.stepBox, getAnimatedStyle(readAnim, 0)]}>
-                        <MaterialCommunityIcons name="book-open-variant" size={20} color={GOLD} />
-                        <Text style={styles.stepText}>পড়ুন</Text>
-                    </Animated.View>
-                    <Animated.View style={[styles.stepDivider, { opacity: Animated.multiply(listenAnim, holeEffect) }]} />
-                    <Animated.View style={[styles.stepBox, getAnimatedStyle(listenAnim, 1)]}>
-                        <Ionicons name="headset" size={18} color={GOLD} />
-                        <Text style={styles.stepText}>শুনুন</Text>
-                    </Animated.View>
-                    <Animated.View style={[styles.stepDivider, { opacity: Animated.multiply(writeAnim, holeEffect) }]} />
-                    <Animated.View style={[styles.stepBox, getAnimatedStyle(writeAnim, 2)]}>
-                        <FontAwesome5 name="pen-nib" size={14} color={GOLD} />
-                        <Text style={styles.stepText}>লিখুন</Text>
-                    </Animated.View>
-                </View>
-            </Animated.View>
-
-            <Animated.View style={[styles.loaderBg, { opacity: loaderFade }]}>
-                <Animated.View style={[styles.loaderFill, {
-                    transform: [
-                        { translateX: -60 },
-                        { scaleX: loaderProgress },
-                        { translateX: 60 }
-                    ]
-                }]} />
-            </Animated.View>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    splashContainer: { flex: 1, backgroundColor: '#1c131e', justifyContent: 'center', alignItems: 'center' },
-    mainWrapper: { alignItems: 'center', width: '100%' },
-    bookWrapper: { position: 'relative' },
-    bookBase: { width: BOOK_WIDTH, height: BOOK_WIDTH, flexDirection: 'row', backgroundColor: '#F7E6C4', borderRadius: 4, elevation: 15, padding: 1 },
-    pageLeftBase: { flex: 1, backgroundColor: '#FFF8DC', borderTopLeftRadius: 4, borderBottomLeftRadius: 4, padding: 8, borderRightWidth: 1.5, borderRightColor: '#F0E5CF', justifyContent: 'center' },
-    pageRightBase: { flex: 1, backgroundColor: '#FFF8DC', borderTopRightRadius: 4, borderBottomRightRadius: 4, padding: 8, justifyContent: 'center' },
-    flipCard: { position: 'absolute', left: '50%', width: PAGE_WIDTH, height: '100%' },
-    pageFace: { position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden', backgroundColor: '#FEFBF3', padding: 8, justifyContent: 'center' },
-    pageFront: { borderTopRightRadius: 4, borderBottomRightRadius: 4, borderLeftWidth: 1, borderLeftColor: '#F0E5CF' },
-    pageBack: { borderTopLeftRadius: 4, borderBottomLeftRadius: 4, borderRightWidth: 1.5, borderRightColor: '#E8D2A6', backgroundColor: '#F9F5EB' },
-    shadowLine: { height: 2.5, backgroundColor: '#D7C0AE', marginBottom: 4, borderRadius: 2 },
-    logoTextRow: { flexDirection: 'row' },
-    brandText: { fontSize: 30, fontWeight: '900', letterSpacing: 1 },
-    stepsContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 15, height: 40 },
-    stepBox: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
-    stepText: { color: '#E0E0E0', fontSize: 14, fontWeight: '600', marginLeft: 6 },
-    stepDivider: { width: 1, height: 12, backgroundColor: '#444', marginHorizontal: 4 },
-    loaderBg: { width: 120, height: 3, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 10, overflow: 'hidden', position: 'absolute', bottom: 330 },
-    loaderFill: { width: 120, height: '100%', backgroundColor: GOLD, borderRadius: 10 },
-    svgContainer: {
-        position: 'absolute', justifyContent: 'center', alignItems: 'center', zIndex: -1, top: -70,
-        left: -70, right: -65, alignSelf: 'center'
+    container: {
+        flex: 1,
+        backgroundColor: BG_COLOR,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-
-   
+    mainWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 80, // স্ক্রিনের আরো একটু উপরে সেন্টারে শিফট করার জন্য বাড়ানো হয়েছে
+    },
+    svg: {
+        width: 120,
+        height: 120,
+        overflow: 'visible',
+    },
+    brandNameText: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        fontFamily: BENGALI_FONT,
+        color: PAPER_DARK,
+        textAlign: 'center',
+        marginTop: -2,
+        includeFontPadding: false,
+    },
+    loadingSection: {
+        width: 160,
+        marginTop: 8,
+        alignSelf: 'center',
+    },
+    loaderBarBg: {
+        width: '100%',
+        height: 2,
+        backgroundColor: 'rgba(43, 45, 47, 0.12)',
+        borderRadius: 4,
+        overflow: 'hidden',
+    },
+    loaderBarFill: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: PAPER_DARK,
+        borderRadius: 4,
+    },
 });
